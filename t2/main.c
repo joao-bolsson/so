@@ -6,7 +6,7 @@ int main() {
     DIR *dp;
     struct dirent *ep;
 
-    dp = opendir("./");
+    dp = opendir("./../home/estagiario");
     if (dp != NULL) {
         while ((ep = readdir(dp))) {
             puts(ep->d_name);
