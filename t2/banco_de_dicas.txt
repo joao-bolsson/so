@@ -1,0 +1,3 @@
+dica 1
+dica 2
+dica 3
