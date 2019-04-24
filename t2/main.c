@@ -10,48 +10,9 @@
 #define MAXCHAR 1000
 #define TIPS_SIZE 3
 
-void listdir(const char *name, int indent) {
-    DIR *dir;
-    struct dirent *entry;
-
-    dir = opendir(name);
-    if (dir == NULL) return;
-
-    int estado;
-    pid_t idProcesso;
-    while ((entry = readdir(dir))) {
-        if (entry->d_type == DT_DIR) {
-            char path[1024];
-            if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) continue;
-
-            idProcesso = fork();
-            wait(NULL);
-
-            if (idProcesso < 0) {
-                fprintf(stderr, "fork falhou\n");
-                closedir(dir);
-                exit(-1);
-            }
-
-            if (idProcesso == 0) { //filho
-                snprintf(path, sizeof(path), "%s/%s", name, entry->d_name);
-
-                printf("%d [label=\"%s, %d\"];\n", getpid(), path, getpid());
-                printf("%d -> %d;\n", getppid(), getpid());
-//                printf("%s -> %s\n", name, path);
-                listdir(path, indent + 2);
-                exit(0);
-//                listdir(path, indent + 2);
-            }
-        }
-    }
-//    wait(&estado);
-    closedir(dir);
-}
-
 const char *getTip(char *str) {
     FILE *fp;
-    char *filename = "./../banco_de_dicas.txt";
+    char *filename = "./banco_de_dicas.txt";
 
     fp = fopen(filename, "r");
     if (fp == NULL) {
@@ -73,12 +34,11 @@ const char *getTip(char *str) {
 }
 
 void createTipFile(const char *dir) {
-    FILE *fPtr;
-
     char path[1024];
 
-    snprintf(path, sizeof(path), "%s/%s", dir, "dica_do_dia.txt");
-    fPtr = fopen(path, "w");
+    snprintf(path, sizeof (path), "%s/%s", dir, "dica_do_dia.txt");
+
+    FILE *fPtr = fopen(path, "w");
 
     if (fPtr == NULL) {
         printf("Unable to create file.\n");
@@ -86,20 +46,55 @@ void createTipFile(const char *dir) {
     }
 
     char str[MAXCHAR];
-    const char *tip = getTip(str);
+    getTip(str);
 
-    fputs(tip, fPtr);
+    fputs(str, fPtr);
     fclose(fPtr);
+}
+
+void listdir(const char *name, int indent) {
+    DIR *dir;
+    struct dirent *entry;
+
+    dir = opendir(name);
+    if (dir == NULL) return;
+
+    pid_t idProcesso;
+    while ((entry = readdir(dir))) {
+        if (entry->d_type == DT_DIR) {
+            char path[1024];
+            if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) continue;
+
+            idProcesso = fork();
+            wait(NULL);
+
+            if (idProcesso < 0) {
+                fprintf(stderr, "fork falhou\n");
+                closedir(dir);
+                exit(-1);
+            }
+
+            if (idProcesso == 0) { //filho
+                snprintf(path, sizeof (path), "%s/%s", name, entry->d_name);
+
+                printf("%d [label=\"%s, %d\"];\n", getpid(), path, getpid());
+                printf("%d -> %d;\n", getppid(), getpid());
+
+                listdir(path, indent + 2);
+
+                createTipFile(path);
+                exit(0);
+            }
+        }
+    }
+    closedir(dir);
 }
 
 int main() {
     srand((unsigned int) time(NULL));
 
-    // exemplo para criar arquivo de dica em /home
-//    createTipFile("./home");
-
+    createTipFile("./home");
     const char* path = "./home";
-
     printf("%d [label=\"%s, %d\"];\n", getpid(), path, getpid());
     listdir(path, 0);
 
