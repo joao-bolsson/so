@@ -25,7 +25,7 @@ void listdir(const char *name, int indent) {
             if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) continue;
 
             idProcesso = fork();
-            wait(&estado);
+            wait(NULL);
 
             if (idProcesso < 0) {
                 fprintf(stderr, "fork falhou\n");
@@ -36,12 +36,16 @@ void listdir(const char *name, int indent) {
             if (idProcesso == 0) { //filho
                 snprintf(path, sizeof(path), "%s/%s", name, entry->d_name);
 
+                printf("%d [label=\"%s, %d\"];\n", getpid(), path, getpid());
                 printf("%d -> %d;\n", getppid(), getpid());
-                printf("%d [label=\"%s, %d\"];\n", getpid(), name, getpid());
+//                printf("%s -> %s\n", name, path);
                 listdir(path, indent + 2);
+                exit(0);
+//                listdir(path, indent + 2);
             }
         }
     }
+//    wait(&estado);
     closedir(dir);
 }
 
@@ -94,7 +98,7 @@ int main() {
     // exemplo para criar arquivo de dica em /home
 //    createTipFile("./home");
 
-//    listdir("./home/estagiario", 0);
+    listdir("./home/estagiario", 0);
 
     return 0;
 }
