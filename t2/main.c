@@ -68,17 +68,33 @@ const char *getTip(char *str) {
     return str;
 }
 
-int main() {
-    /*
-     código para gerar uma dica
-    srand((unsigned int) time(NULL));
+void createTipFile(const char *dir) {
+    FILE *fPtr;
+
+    char path[1024];
+
+    snprintf(path, sizeof(path), "%s/%s", dir, "dica_do_dia.txt");
+    fPtr = fopen(path, "w");
+
+    if (fPtr == NULL) {
+        printf("Unable to create file.\n");
+        exit(EXIT_FAILURE);
+    }
 
     char str[MAXCHAR];
     const char *tip = getTip(str);
-    printf("tip: %s\n", tip);
-    */
 
-    listdir("./home/estagiario", 0);
+    fputs(tip, fPtr);
+    fclose(fPtr);
+}
+
+int main() {
+    srand((unsigned int) time(NULL));
+
+    // exemplo para criar arquivo de dica em /home
+//    createTipFile("./home");
+
+//    listdir("./home/estagiario", 0);
 
     return 0;
 }
