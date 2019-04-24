@@ -98,7 +98,10 @@ int main() {
     // exemplo para criar arquivo de dica em /home
 //    createTipFile("./home");
 
-    listdir("./home/estagiario", 0);
+    const char* path = "./home";
+
+    printf("%d [label=\"%s, %d\"];\n", getpid(), path, getpid());
+    listdir(path, 0);
 
     return 0;
 }
