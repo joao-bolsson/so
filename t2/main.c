@@ -9,10 +9,11 @@
 
 #define MAXCHAR 1000
 #define TIPS_SIZE 3
+#define PATH_TIPS "./../banco_de_dicas.txt"
 
 const char *getTip(char *str) {
     FILE *fp;
-    char *filename = "./banco_de_dicas.txt";
+    char *filename = PATH_TIPS;
 
     fp = fopen(filename, "r");
     if (fp == NULL) {
@@ -36,7 +37,7 @@ const char *getTip(char *str) {
 void createTipFile(const char *dir) {
     char path[1024];
 
-    snprintf(path, sizeof (path), "%s/%s", dir, "dica_do_dia.txt");
+    snprintf(path, sizeof(path), "%s/%s", dir, "dica_do_dia.txt");
 
     FILE *fPtr = fopen(path, "w");
 
@@ -75,7 +76,7 @@ void listdir(const char *name, int indent) {
             }
 
             if (idProcesso == 0) { //filho
-                snprintf(path, sizeof (path), "%s/%s", name, entry->d_name);
+                snprintf(path, sizeof(path), "%s/%s", name, entry->d_name);
 
                 printf("%d [label=\"%s, %d\"];\n", getpid(), path, getpid());
                 printf("%d -> %d;\n", getppid(), getpid());
@@ -93,8 +94,8 @@ void listdir(const char *name, int indent) {
 int main() {
     srand((unsigned int) time(NULL));
 
-    createTipFile("./home");
-    const char* path = "./home";
+    const char *path = "./../home";
+    createTipFile(path);
     printf("%d [label=\"%s, %d\"];\n", getpid(), path, getpid());
     listdir(path, 0);
 

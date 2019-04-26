@@ -1,3 +1,8 @@
 dica 1
 dica 2
 dica 3
+dica 15
+dica 90
+dica 66
+dica 78
+dica 80
