@@ -7,13 +7,12 @@ struct MemoryStruct {
 };
 
 static size_t
-WriteMemoryCallback(void *contents, size_t size, size_t nmemb, void *userp)
-{
+WriteMemoryCallback(void *contents, size_t size, size_t nmemb, void *userp) {
     size_t realsize = size * nmemb;
-    struct MemoryStruct *mem = (struct MemoryStruct *)userp;
+    struct MemoryStruct *mem = (struct MemoryStruct *) userp;
 
     char *ptr = realloc(mem->memory, mem->size + realsize + 1);
-    if(ptr == NULL) {
+    if (ptr == NULL) {
         /* out of memory! */
         printf("not enough memory (realloc returned NULL)\n");
         return 0;
@@ -27,7 +26,7 @@ WriteMemoryCallback(void *contents, size_t size, size_t nmemb, void *userp)
     return realsize;
 }
 
-char* download_page(CURL *curl_handle, const char* url){
+char *download_page(CURL *curl_handle, const char *url) {
 
     CURLcode res;
 
@@ -48,7 +47,7 @@ char* download_page(CURL *curl_handle, const char* url){
     curl_easy_setopt(curl_handle, CURLOPT_WRITEFUNCTION, WriteMemoryCallback);
 
     /* we pass our 'chunk' struct to the callback function */
-    curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, (void *)&chunk);
+    curl_easy_setopt(curl_handle, CURLOPT_WRITEDATA, (void *) &chunk);
 
     /* some servers don't like requests that are made without a user-agent
        field, so we provide one */
@@ -58,11 +57,10 @@ char* download_page(CURL *curl_handle, const char* url){
     res = curl_easy_perform(curl_handle);
 
     /* check for errors */
-    if(res != CURLE_OK) {
+    if (res != CURLE_OK) {
         fprintf(stderr, "curl_easy_perform() failed: %s\n",
                 curl_easy_strerror(res));
-    }
-    else {
+    } else {
         /*
          * Now, our chunk.memory points to a memory block that is chunk.size
          * bytes big and contains the remote file.
@@ -88,29 +86,27 @@ char* download_page(CURL *curl_handle, const char* url){
     return NULL;
 }
 
-
-char** find_links(CURL *curl_handle, char *str, int max_of_links, int *links_readed){
-
-    char** links_list = (char**) malloc(max_of_links*sizeof(char*));
+char **find_links(CURL *curl_handle, char *str, int max_of_links, int *links_readed) {
+    char **links_list = (char **) malloc(max_of_links * sizeof(char *));
     char *new;
     int it = 0;
 
-    do{
+    do {
         new = strstr(str, "href=\"/wiki/");
-        if(new == NULL || it + 1 > max_of_links){
+        if (new == NULL || it + 1 > max_of_links) {
             break;
         }
-        char* pos = strchr(new+12, '"');
+        char *pos = strchr(new + 12, '"');
 
         int int_pos = pos - new + 1;
 
-        char *out = (char*)malloc((int_pos-6) * sizeof(char));
-        memcpy(out, new+6, int_pos-7);
-        out[int_pos-7] = '\0';
+        char *out = (char *) malloc((int_pos - 6) * sizeof(char));
+        memcpy(out, new + 6, int_pos - 7);
+        out[int_pos - 7] = '\0';
 
-        char url[int_pos-5 + 24];
-        strcpy (url,"https://pt.wikipedia.org");
-        strcat (url,out);
+        char url[int_pos - 5 + 24];
+        strcpy(url, "https://pt.wikipedia.org");
+        strcat(url, out);
 
         int int_pos0 = new - str + 1;
         str += int_pos + int_pos0;
@@ -123,7 +119,7 @@ char** find_links(CURL *curl_handle, char *str, int max_of_links, int *links_rea
         it++;
         // puts(decoded);
 
-    }while(new != NULL);
+    } while (new != NULL);
 
     *links_readed = it;
     return links_list;
