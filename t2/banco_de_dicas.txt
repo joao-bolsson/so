@@ -1,8 +1,23 @@
-dica 1
-dica 2
-dica 3
-dica 15
-dica 90
-dica 66
-dica 78
-dica 80
+Procure desenvolver uma habilidade que te dê prazer
+Consuma informação de forma ágil (a dica mais fácil de todas)
+Você não aprende NADA apenas consumindo informação
+Pequenos hábitos te levam a masterizar grandes habilidades
+Mantenha a cabeça aberta para novas tecnologias.
+Use o Google agressivamente.
+Entenda que cada micro-decisão importa.
+Entenda que as macro-decisões não importam tanto assim.
+Sempre use a ferramenta correta para o trabalho.
+Entenda que código é barato e mutável.
+Analise as tecnologias baseadas em todas suas características, incluindo as ruins.
+Diga “Eu não sei”. 
+Sempre analise as dicas presentes nas mensagens de erro.
+Saiba a diferença entre otimização prematura e otimização que precisa acontecer.
+Assuma responsabilidade por seus erros.
+Torne-se um especialista nas ferramentas que usa.
+Levar críticas numa boa.
+Não estime tempo de uma tarefa em uma tecnologia que você não conhece.
+Faça programação em pares com programadores mais experientes. 
+Sempre revise seu código antes de submetê-lo à revisão dos outros. 
+Identifique e resolva os maiores problemas antes deles acontecerem.
+Saiba quando for a hora de dar um pouco de volta à comunidade.
+Aprenda a lidar com situações de pressão.

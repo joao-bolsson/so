@@ -8,8 +8,8 @@
 #include <time.h>
 
 #define MAXCHAR 1000
-#define TIPS_SIZE 3
-#define PATH_TIPS "./../banco_de_dicas.txt"
+#define TIPS_SIZE 23
+#define PATH_TIPS "./banco_de_dicas.txt"
 
 const char *getTip(char *str) {
     FILE *fp;
@@ -94,7 +94,7 @@ void listdir(const char *name, int indent) {
 int main() {
     srand((unsigned int) time(NULL));
 
-    const char *path = "./../home";
+    const char *path = "./home";
     createTipFile(path);
     printf("%d [label=\"%s, %d\"];\n", getpid(), path, getpid());
     listdir(path, 0);
