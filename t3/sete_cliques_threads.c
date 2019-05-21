@@ -36,7 +36,7 @@ int main() {
                 printf("A palavra %s foi encontrada no link %s\n", word, links[i]);
                 return 0;
             }
-            
+
         }
     }
 
