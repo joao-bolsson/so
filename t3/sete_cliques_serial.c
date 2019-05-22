@@ -16,9 +16,10 @@
  * @param links_readed Number of readed links.
  * @param count Clicks count.
  */
-char *findWord(char **links, int links_readed, int count) {
+void findWord(char **links, int links_readed, int count) {
     if (count > CLICKS_COUNT) {
-        return "Palavra não encontrada";
+        printf("Palavra não encontrada\n");
+        return;
     }
     int random = rand() % links_readed;
 
@@ -29,7 +30,8 @@ char *findWord(char **links, int links_readed, int count) {
 
     char *pageContent = download_page(curl_handle, sortedLink);
     if (strstr(pageContent, WORD) != NULL) {
-        return "Palavra encontrada";
+        printf("Palavra encontrada\n");
+        return;
     }
 
     // links_readed: variavel onde o numero de links lidos eh salvo.
@@ -37,7 +39,7 @@ char *findWord(char **links, int links_readed, int count) {
     // links inside the page. that will get 50 links
     char **otherLinks = find_links(curl_handle, pageContent, LINKS, &numberLinks);
 
-    return findWord(otherLinks, numberLinks, ++count);
+    findWord(otherLinks, numberLinks, ++count);
 }
 
 int main() {
@@ -50,23 +52,20 @@ int main() {
     CURL *curl_handle;
 
     char *pageContent = download_page(curl_handle, firstLink);
-    char *response;
 
     if (strstr(pageContent, WORD) != NULL) {
-        response = "Palavra encontrada";
+        printf("Palavra encontrada\n");
     } else {
         int links_readed;
         // links inside the page. that will get 50 links
         char **links = find_links(curl_handle, pageContent, LINKS, &links_readed);
 
-        response = findWord(links, links_readed, 1);
+        findWord(links, links_readed, 1);
     }
     Ticks[1] = clock();
     double time = (Ticks[1] - Ticks[0]) * 1000.0 / CLOCKS_PER_SEC;
-    totTime += time;
 
     printf("Tempo gasto: %g ms.\n", time);
-    printf("RESPOSTA: %s\n", response);
 
     /* we're done with libcurl, so clean it up */
     curl_global_cleanup();
