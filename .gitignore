@@ -1,4 +1,6 @@
 .idea/
 cmake-build-debug/
 CMakeLists.txt
-
+*.o
+Sete_Cliques_Serial
+Sete_Cliques_Threads
