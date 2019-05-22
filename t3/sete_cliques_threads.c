@@ -73,7 +73,7 @@ int main(int argc, char **argv) {
 
     printf("Número de threads: %d\n", numThreads);
 
-    clock_t Ticks[2];
+    double Ticks[2];
     Ticks[0] = clock();
 
     char *firstLink = "https://pt.wikipedia.org/wiki/Sistema_operativo";
