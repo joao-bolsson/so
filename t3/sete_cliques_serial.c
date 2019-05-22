@@ -3,6 +3,7 @@
  * @version 2019, May 19.
  */
 #include "curl_code.h"
+#include <time.h>
 
 #define LINKS 50
 #define WORD "Sport Club Internacional"
@@ -40,24 +41,31 @@ char *findWord(char **links, int links_readed, int count) {
 }
 
 int main() {
+    clock_t Ticks[2];
+    Ticks[0] = clock();
+
     char *firstLink = "https://pt.wikipedia.org/wiki/Sistema_operativo";
 
     srand(time(NULL));
     CURL *curl_handle;
 
     char *pageContent = download_page(curl_handle, firstLink);
+    char *response;
 
     if (strstr(pageContent, WORD) != NULL) {
-        printf("Palavra encontrada\n");
-        return 0;
+        response = "Palavra encontrada";
+    } else {
+        int links_readed;
+        // links inside the page. that will get 50 links
+        char **links = find_links(curl_handle, pageContent, LINKS, &links_readed);
+
+        response = findWord(links, links_readed, 1);
     }
+    Ticks[1] = clock();
+    double time = (Ticks[1] - Ticks[0]) * 1000.0 / CLOCKS_PER_SEC;
+    totTime += time;
 
-    int links_readed;
-    // links inside the page. that will get 50 links
-    char **links = find_links(curl_handle, pageContent, LINKS, &links_readed);
-
-    char *response = findWord(links, links_readed, 1);
-
+    printf("Tempo gasto: %g ms.\n", time);
     printf("RESPOSTA: %s\n", response);
 
     /* we're done with libcurl, so clean it up */
