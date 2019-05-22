@@ -11,6 +11,11 @@
 #define TIPS_SIZE 23
 #define PATH_TIPS "./banco_de_dicas.txt"
 
+/**
+ * Gets a tip from tips file.
+ * @param str String to store the tip.
+ * @return The string with a tip from tips file.
+ */
 const char *getTip(char *str) {
     FILE *fp;
     char *filename = PATH_TIPS;
@@ -34,10 +39,14 @@ const char *getTip(char *str) {
     return str;
 }
 
+/**
+ * Creates a tip file inside of given directory.
+ * @param dir Given directory path.
+ */
 void createTipFile(const char *dir) {
     char path[1024];
 
-    snprintf(path, sizeof(path), "%s/%s", dir, "dica_do_dia.txt");
+    snprintf(path, sizeof (path), "%s/%s", dir, "dica_do_dia.txt");
 
     FILE *fPtr = fopen(path, "w");
 
@@ -53,7 +62,11 @@ void createTipFile(const char *dir) {
     fclose(fPtr);
 }
 
-void listdir(const char *name, int indent) {
+/**
+ * List all sub-directories from a given directory and creates a process with fork for each one of them.
+ * @param name Given base directory.
+ */
+void listdir(const char *name) {
     DIR *dir;
     struct dirent *entry;
 
@@ -67,24 +80,27 @@ void listdir(const char *name, int indent) {
             if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) continue;
 
             idProcesso = fork();
-            wait(NULL);
+            wait(NULL); // each process must wait the children
 
             if (idProcesso < 0) {
+                // failure case
                 fprintf(stderr, "fork falhou\n");
                 closedir(dir);
                 exit(-1);
             }
 
-            if (idProcesso == 0) { //filho
-                snprintf(path, sizeof(path), "%s/%s", name, entry->d_name);
+            if (idProcesso == 0) { // child
+                snprintf(path, sizeof (path), "%s/%s", name, entry->d_name);
 
                 printf("%d [label=\"%s, %d\"];\n", getpid(), path, getpid());
                 printf("%d -> %d;\n", getppid(), getpid());
 
-                listdir(path, indent + 2);
+                // call recursively the list of directories of the current path
+                listdir(path);
 
+                // creates the tip file
                 createTipFile(path);
-                exit(0);
+                exit(0); // after the creation of tip file the process exits
             }
         }
     }
@@ -94,10 +110,13 @@ void listdir(const char *name, int indent) {
 int main() {
     srand((unsigned int) time(NULL));
 
+    printf("digraph G {\n");
+    // creates a tip file in root path and starts the process to build forks from it
     const char *path = "./home";
     createTipFile(path);
     printf("%d [label=\"%s, %d\"];\n", getpid(), path, getpid());
-    listdir(path, 0);
+    listdir(path);
 
+    printf("}\n");
     return 0;
 }
