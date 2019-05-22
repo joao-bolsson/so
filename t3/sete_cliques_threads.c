@@ -9,7 +9,6 @@
 #define LINKS 50
 #define WORD "Sport Club Internacional"
 #define CLICKS_COUNT 7
-#define THREADS 2
 
 int links_readed;
 char **links;
@@ -53,7 +52,27 @@ void *threadFind() {
     return NULL;
 }
 
-int main() {
+int main(int argc, char **argv) {
+    if (argc != 2) {
+        printf("Wrong parameters: expected the number of threads to use.\n");
+        return 0;
+    }
+
+    char *p;
+    int numThreads;
+
+    long conv = strtol(argv[1], &p, 10);
+
+    if (*p != '\0' || conv > INT_MAX) {
+        printf("Can't convert the number of threads.\n");
+        return 0;
+    } else {
+        // No error
+        numThreads = conv;
+    }
+
+    printf("Número de threads: %d\n", numThreads);
+
     clock_t Ticks[2];
     Ticks[0] = clock();
 
@@ -70,9 +89,9 @@ int main() {
         // links inside the page. that will get 50 links
         links = find_links(curl_handle, pageContent, LINKS, &links_readed);
 
-        pthread_t threads[THREADS];
+        pthread_t threads[numThreads];
 
-        for (int i = 0; i < THREADS; i++) {
+        for (int i = 0; i < numThreads; i++) {
             pthread_create(&threads[i], NULL, threadFind, NULL);
             pthread_join(threads[i], NULL);
         }
