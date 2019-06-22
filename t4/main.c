@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <semaphore.h>
 #include <pthread.h>
+#include <unistd.h>
 
 #define N 5
 
@@ -8,16 +9,14 @@ sem_t mutex; // avoid two thread accessing the room at the same time
 sem_t empty; // number of empty positions in the room
 sem_t full;  // number of occupied positions in the room
 
-pthread_t studentsInRoom[N];
-
-char* idStudents[N];
+int *studentsInRoom[N];
 
 int notUsed = 1; // just for don't get a warn of endless loop in the 'while's
 
 int nextPosition; // next empty position of studentsInRoom
 
-void *student(void* thread) {
-    char* st = (char*) thread;
+void *student(void *thread) {
+    int *st = (int *) thread;
     while (notUsed > 0) {
         // produz
         sem_wait(&empty);
@@ -26,27 +25,29 @@ void *student(void* thread) {
         int inRoom = 0;
         // checks if the student is already in the room
         for (int i = 0; i < N; i++) {
-            if (idStudents[i] == st) {
+            if (studentsInRoom[i] == st) {
                 inRoom = 1; // true
-                printf("estudante %s já está na sala\n", st);
+                printf("estudante %p já está na sala\n", st);
                 break;
             }
         }
 
         if (!inRoom) {
             // insert
-            idStudents[nextPosition] = st;
-            printf("estudante %s entrou na sala na posição %d\n", st, nextPosition);
+            studentsInRoom[nextPosition] = st;
+            printf("estudante %p entrou na sala na posição %d\n", st, nextPosition);
             nextPosition = (nextPosition + 1) % N;
         }
 
         sem_post(&mutex);
         sem_post(&full);
+        sleep(2);
     }
+    return NULL;
 }
 
 // fellowship
-void *manager(void *thread) {
+void *manager() {
     while (notUsed > 0) {
         sem_wait(&full);
         sem_wait(&mutex);
@@ -59,7 +60,9 @@ void *manager(void *thread) {
 
         sem_post(&mutex);
         sem_post(&empty);
+        sleep(5);
     }
+    return NULL;
 }
 
 int main(void) {
@@ -73,19 +76,21 @@ int main(void) {
     printf("Inicializando os estudantes, total: %d\n", n);
 
     pthread_t students[n];
-    char ids[n];
+    int id[n]; // student id
 
-    char id = 'a';
     // creating the students
     for (int i = 0; i < n; i++) {
-        ids[i] = id++;
-        pthread_create(&students[i], NULL, student, &ids[i]);
-        pthread_join(students[i], 0);
+        id[i] = i;
+        pthread_create(&students[i], NULL, student, &id[i]);
     }
 
     // creating the manager
     pthread_t fellowship;
-    pthread_create(&fellowship, 0, manager, &fellowship);
+    pthread_create(&fellowship, 0, manager, NULL);
+
+    for (int i = 0; i < n; i++) {
+        pthread_join(students[i], 0);
+    }
     pthread_join(fellowship, 0);
 
     return 0;
