@@ -54,13 +54,14 @@ void *manager() {
         sem_wait(&mutex);
 
         printf("bolsista entrou na sala\n");
-        printf("proxima posição: %d\n", nextPosition);
 
         // remove
 //        printf("entrega carteirinha pra entudante\n");
 
         sem_post(&mutex);
         sem_post(&empty);
+
+        printf("bolsista saiu da sala\n");
     }
     return NULL;
 }
