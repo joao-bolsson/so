@@ -49,6 +49,7 @@ void *student(void *thread) {
 // fellowship
 void *manager() {
     while (notUsed > 0) {
+        sleep(10);
         sem_wait(&full);
         sem_wait(&mutex);
 
@@ -60,7 +61,6 @@ void *manager() {
 
         sem_post(&mutex);
         sem_post(&empty);
-        sleep(5);
     }
     return NULL;
 }
