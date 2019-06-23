@@ -20,11 +20,6 @@ sem_t empty;
  */
 sem_t full;
 
-/**
- * Lock/Unlook the room. If the manager is in the room - lock. When he get out of the room - unlock.
- */
-sem_t room;
-
 int *studentsInRoom[N];
 
 int notUsed = 1; // just for don't get a warn of endless loop in the 'while's
@@ -34,8 +29,6 @@ int nextPosition; // next empty position of studentsInRoom
 void *student(void *thread) {
     int *st = (int *) thread;
     while (notUsed > 0) {
-        sem_wait(&room);
-
         sem_wait(&empty);
         sem_wait(&mutex);
 
@@ -68,8 +61,6 @@ void *manager() {
     while (notUsed > 0) {
         sleep(10);
 
-        sem_wait(&room);
-
         sem_wait(&full);
         sem_wait(&mutex);
 
@@ -77,12 +68,9 @@ void *manager() {
 
         // remove
 //        printf("entrega carteirinha pra entudante\n");
-
+        printf("bolsista saiu da sala\n");
         sem_post(&mutex);
         sem_post(&empty);
-
-        printf("bolsista saiu da sala\n");
-        sem_post(&room);
     }
     return NULL;
 }
@@ -95,7 +83,6 @@ int main(void) {
         printf("Deve haver um mínimo de 5 estudantes\n");
     }
 
-    sem_init(&room, 0, 1);
     sem_init(&mutex, 0, 1);
     sem_init(&empty, 0, N);
     sem_init(&full, 0, 0);
