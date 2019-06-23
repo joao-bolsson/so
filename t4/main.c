@@ -1,26 +1,32 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <semaphore.h>
 #include <pthread.h>
 #include <unistd.h>
 
+/**
+ * Max number of students in the room.
+ */
 #define N 5
+
+/**
+ * Time in seconds that each student must sleep.
+ */
+#define SLEEP_STUDENT 2
+
+/**
+ * Time in seconds that the manager must sleep.
+ */
+#define SLEEP_MANAGER 10
 
 /**
  * Avoid two thread accessing the room at the same time.
  */
 sem_t mutex;
 
-/**
- * Number of empty positions in the room.
- */
-sem_t empty;
-
-/**
- * Number of occupied positions in the room.
- */
-sem_t full;
-
 int *studentsInRoom[N];
+
+sem_t positions[N];
 
 int notUsed = 1; // just for don't get a warn of endless loop in the 'while's
 
@@ -29,7 +35,6 @@ int nextPosition; // next empty position of studentsInRoom
 void *student(void *thread) {
     int *st = (int *) thread;
     while (notUsed > 0) {
-        sem_wait(&empty);
         sem_wait(&mutex);
 
         int inRoom = 0;
@@ -37,21 +42,26 @@ void *student(void *thread) {
         for (int i = 0; i < N; i++) {
             if (studentsInRoom[i] == st) {
                 inRoom = 1; // true
-                printf("estudante %p já está na sala\n", st);
                 break;
             }
         }
 
+        sem_post(&mutex);
+
         if (!inRoom) {
-            // insert
+            // wait for the position is empty
+            sem_wait(&positions[nextPosition]);
+            sem_wait(&mutex);
+
+            printf("estudante %d entra na sala na posicao %d\n", *st, nextPosition);
+
             studentsInRoom[nextPosition] = st;
-            printf("estudante %p entrou na sala na posição %d\n", st, nextPosition);
             nextPosition = (nextPosition + 1) % N;
+
+            sem_post(&mutex);
         }
 
-        sem_post(&mutex);
-        sem_post(&full);
-        sleep(2);
+        sleep(SLEEP_STUDENT);
     }
     return NULL;
 }
@@ -59,33 +69,46 @@ void *student(void *thread) {
 // fellowship
 void *manager() {
     while (notUsed > 0) {
-        sleep(10);
+        sleep(SLEEP_MANAGER);
 
-        sem_wait(&full);
         sem_wait(&mutex);
-
         printf("bolsista entrou na sala\n");
 
-        // remove
-//        printf("entrega carteirinha pra entudante\n");
+        for (int i = 0; i < N; i++) {
+            printf("Entrega carteirinha %d\n", i);
+            sem_post(&positions[i]);
+        }
+
         printf("bolsista saiu da sala\n");
         sem_post(&mutex);
-        sem_post(&empty);
     }
     return NULL;
 }
 
-int main(void) {
-    nextPosition = 0;
-    int n = 20; // TODO: receber n por parametro
+int main(int argc, char *argv[]) {
+    if (argc < 2) {
+        printf("Parâmetros errados ./main <numberOfStudents>\n");
+        return 0;
+    }
+
+    char *p;
+    int n; // number of students
+    long conv = strtol(argv[1], &p, 10);
+
+    n = (int) conv;
 
     if (n < N) {
         printf("Deve haver um mínimo de 5 estudantes\n");
+        return 0;
     }
 
+    nextPosition = 0;
+
     sem_init(&mutex, 0, 1);
-    sem_init(&empty, 0, N);
-    sem_init(&full, 0, 0);
+
+    for (int i = 0; i < N; i++) {
+        sem_init(&positions[i], 0, 1);
+    }
 
     printf("Inicializando os estudantes, total: %d\n", n);
 
