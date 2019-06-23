@@ -5,9 +5,25 @@
 
 #define N 5
 
-sem_t mutex; // avoid two thread accessing the room at the same time
-sem_t empty; // number of empty positions in the room
-sem_t full;  // number of occupied positions in the room
+/**
+ * Avoid two thread accessing the room at the same time.
+ */
+sem_t mutex;
+
+/**
+ * Number of empty positions in the room.
+ */
+sem_t empty;
+
+/**
+ * Number of occupied positions in the room.
+ */
+sem_t full;
+
+/**
+ * Lock/Unlook the room. If the manager is in the room - lock. When he get out of the room - unlock.
+ */
+sem_t room;
 
 int *studentsInRoom[N];
 
@@ -18,7 +34,8 @@ int nextPosition; // next empty position of studentsInRoom
 void *student(void *thread) {
     int *st = (int *) thread;
     while (notUsed > 0) {
-        // produz
+        sem_wait(&room);
+
         sem_wait(&empty);
         sem_wait(&mutex);
 
@@ -50,6 +67,9 @@ void *student(void *thread) {
 void *manager() {
     while (notUsed > 0) {
         sleep(10);
+
+        sem_wait(&room);
+
         sem_wait(&full);
         sem_wait(&mutex);
 
@@ -62,14 +82,20 @@ void *manager() {
         sem_post(&empty);
 
         printf("bolsista saiu da sala\n");
+        sem_post(&room);
     }
     return NULL;
 }
 
 int main(void) {
     nextPosition = 0;
-    int n = 20;
+    int n = 20; // TODO: receber n por parametro
 
+    if (n < N) {
+        printf("Deve haver um mínimo de 5 estudantes\n");
+    }
+
+    sem_init(&room, 0, 1);
     sem_init(&mutex, 0, 1);
     sem_init(&empty, 0, N);
     sem_init(&full, 0, 0);
